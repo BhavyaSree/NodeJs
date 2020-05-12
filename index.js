@@ -3,6 +3,8 @@ const fs = require('fs');
 const http = require('http');
 const url = require('url');
 
+const replaceTemplate = require('./1-Node-farm/modules/replaceTemplate');
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////// FILES
 
@@ -38,22 +40,44 @@ const url = require('url');
 
 // we use sybchronous, as this code will be only executed once.
 //./ indicates where script is running, __dirname indicates while current file located
+const tempOverview = fs.readFileSync(`${__dirname}/1-Node-farm/templates/template-overview.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/1-Node-farm/templates/template-product.html`, 'utf-8');
+const tempCard = fs.readFileSync(`${__dirname}/1-Node-farm/templates/template-card.html`, 'utf-8');
+
+
 const data = fs.readFileSync(`${__dirname}/1-Node-farm/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
-
 const server = http.createServer((req, res) => {
-  const pathName = req.url;
-  if (pathName === '/' || pathName === '/overview') {
-    res.end('This is the OVERVIEW');
+  
+  //console.log(req.url);
+  //console.log(url.parse(req.url, true));
+  const { query, pathname } = url.parse(req.url, true);
+
+  // Overview page
+  if (pathname === '/' || pathname === '/overview') {
+    res.writeHead(200, {'Content-type': 'text/html' });
+
+    const cardsHtml = dataObj.map(el => replaceTemplate(tempCard, el)).join('');
+    const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
+    res.end(output);
   }
-  else if (pathName === '/product') {
-    res.end('This is the PRODUCT');
+
+  // Product page
+  else if (pathname === '/product') {
+    res.writeHead(200, {'Content-type': 'text/html' });
+    const product = dataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
+    res.end(output);
   }
-  else if (pathName === '/api') {
+
+  // API
+  else if (pathname === '/api') {
     res.writeHead(200, {'Content-type': 'application/json' });
     res.end(data);
   }
+
+  // Not Found
   else {
     res.writeHead(404, {
       'Content-type': 'text/html',
