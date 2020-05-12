@@ -73,3 +73,6 @@ If one user blocks the thread with synchronous code, then all the other users ha
 Therefore, we use asynchronous way of processing in NodeJs.
 Thus, NodeJs will be non-blocking I/O model and we use many callback functions in Node.js.
 But callbacks doesn't indicate that we are using asynchronous mode. Only some functions can be run in asynchronous mode not all.
+
+
+## Routing
