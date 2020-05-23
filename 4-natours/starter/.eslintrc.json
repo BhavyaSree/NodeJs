@@ -4,7 +4,8 @@
   "rules": {
     "prettier/prettier": "error",
     "spaced-comment": "off",
-    "no-console": "warn",
+    //  Changed warn to OFF for console
+    "no-console": "off",
     "consistent-return": "off",
     "func-names": "off",
     "object-shorthand": "off",
