@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+// handling uncaught errors Eg: console.log(x) -- x is not defined
+// listening to uncaughtexception event
+// This handler should be at first, as it should be applicable to whole code
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('UNCAUGHT REJECTION! 💥 Shutting down...');
+  process.exit(1); // code 0 for success, 1 for unhandled exceptions
+});
+// If we have error in middleware, express goes to global error handling middleware.
+// errors in middleware will be caught by global error handling middleware.
+
 dotenv.config({ path: './config.env' });
 
 const app = require('./app');
@@ -22,9 +33,7 @@ mongoose
     useFindAndModify: false,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log('DB Connection successful!');
-  });
+  .then(() => console.log('DB Connection successful!'));
 
 // testTour document is an instance of Tour model
 // test - to create documents from code to the server (recheck in atlas)
@@ -50,6 +59,17 @@ mongoose
 
 // SERVER
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+// handling unhandled rejections, errors outside express like incorrect password to connect to DB
+// Global handler for promise rejections
+// Listening to unhandledRejection events and handling them
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  console.log('UNHANDLER REJECTION! 💥 Shutting down...');
+  server.close(() => {
+    process.exit(1); // code 0 for success, 1 for unhandled exceptions
+  });
 });
