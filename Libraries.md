@@ -38,6 +38,10 @@ npm i bcryptjs
 
 For encrypting or hashing the passwords
 
-### Passport
+### JSON web Token
 
-for authentication and authorization
+```
+npm i jsonwebtoken
+```
+
+To implement Json Web Tokens
