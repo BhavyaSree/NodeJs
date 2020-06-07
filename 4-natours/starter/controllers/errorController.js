@@ -22,6 +22,14 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = () => {
+  return new AppError('Invalid token, Please login again!', 401);
+};
+
+const handleJWTExpiredError = () => {
+  return new AppError('Your token has been expired, Please login again!', 401);
+};
+
 // Errors based on the environment
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -75,6 +83,13 @@ module.exports = (err, req, res, next) => {
     // if (error.name === 'ValidationError') { //again error.name is undefined for me, so given some other condition
     if (error._message === 'Validation failed') {
       error = handleValidationErrorDB(err);
+    }
+    // JSonwebtoken errors
+    if (error.name === 'JsonWebTokenError') {
+      error = handleJWTError();
+    }
+    if (error.name === 'TokenExpiredError') {
+      error = handleJWTExpiredError();
     }
 
     sendErrorProd(error, res);
